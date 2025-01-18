@@ -1,6 +1,7 @@
 from flask import Flask,g, render_template, request, redirect, flash, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import mysql.connector
 from flask_login import login_user, logout_user, login_required, current_user
 
 # Initialize Flask application
@@ -14,7 +15,7 @@ def before_request():
     g.sem_id = 2
     g.registration = True # Assume registration is open by default
     g.faculty_id = session.get('faculty_id')
-    g.fees=session['fee_pr_crd_hr']
+    g.fees = 9000
 
 
 # Initialize SQLAlchemy(library of python )
@@ -394,7 +395,6 @@ def register_course():
 
     return render_template('register_course.html', user=user, courses=courses)  # Pass courses to the template
 
-# registered courses(STUDENT) 
 @app.route('/registered_courses')
 def registered_courses():
     if 'user_id' not in session:
@@ -409,21 +409,25 @@ def registered_courses():
         .join(Course)
         .join(Semester)
         .filter(Enrollment.student_sno == user.sno)
-        .all()    )
+        .all()
+    )
         
     courses_by_semester = {}
     for enrollment in enrollments:
-        semester_name = enrollment.semester.semester  
-        course_name = enrollment.course_enrollment.CourseName  
-        # courses=enrollment.course
+        semester_name = enrollment.semester.semester  # Get the semester name from the enrollment
+        course_name = enrollment.course_enrollment.CourseName  # Get the course name from the enrollment
 
         if semester_name not in courses_by_semester:
             courses_by_semester[semester_name] = []
         
         courses_by_semester[semester_name].append(course_name)
-        g.sem_id=session.get('semesterid1', None)
-        semester_name = Semester.query.filter_by(sem_id=g.sem_id).first()        
-    return render_template('registered_courses.html', user=user,courses_by_semester=courses_by_semester,semname=semester_name)
+
+    # Optionally, you can fetch the current semester name if needed
+    g.sem_id = session.get('semesterid1', None)
+    current_semester = Semester.query.filter_by(sem_id=g.sem_id).first() if g.sem_id else None
+
+    return render_template('registered_courses.html', user=user, courses_by_semester=courses_by_semester, semname=current_semester)
+
 
 # STUDENT drop semester
 @app.route('/drop_course/<string:course_name>/<int:sem_id>/<int:user_sno>', methods=['GET'])
@@ -1133,5 +1137,5 @@ def close_register():
 
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True, port=8000)
+if __name__ == "__main__":
+    app.run(debug=True, port=8000)
