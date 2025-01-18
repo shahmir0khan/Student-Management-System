@@ -138,7 +138,7 @@ student-management-system/
 ---
 
 ## Feedback
-If you have any suggestions or issues, feel free to raise an issue in the repository or contact us at *(your email)*.
+If you have any suggestions or issues, feel free to raise an issue in the repository or contact us at *shahmirahmedkhan84@gmail.com*.
 
 ---
 
